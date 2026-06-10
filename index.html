@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>💕 Pick Our Secret Trip</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink:    #FF6B9D;
+      --pink2:   #FF9DC6;
+      --purple:  #C77DFF;
+      --lavender:#E0AAFF;
+      --peach:   #FFB347;
+      --cream:   #FFF5F9;
+      --dark:    #3D1A4F;
+      --card-bg: rgba(255,255,255,0.82);
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffd6ec 0%, #e8d5ff 40%, #ffd6ec 100%);
+      font-family: 'Nunito', sans-serif;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Floating hearts background */
+    .hearts-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .heart-float {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0.18;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0.18; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 480px; width: 100%;
+    }
+
+    /* Header */
+    .header {
+      text-align: center; margin-bottom: 28px;
+      animation: bounceIn 0.8s cubic-bezier(.36,.07,.19,.97);
+    }
+    .header .emoji-row { font-size: 2rem; margin-bottom: 6px; letter-spacing: 6px; }
+    .header h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: clamp(1.8rem, 6vw, 2.6rem);
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px rgba(199,125,255,0.3));
+    }
+    .header p {
+      color: var(--dark); font-size: 0.95rem; font-weight: 600;
+      margin-top: 6px; opacity: 0.7;
+    }
+
+    /* Cards */
+    .cards { display: flex; flex-direction: column; gap: 16px; }
+
+    .date-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 20px 22px;
+      border: 2.5px solid rgba(255,107,157,0.18);
+      box-shadow: 0 8px 32px rgba(199,125,255,0.13), 0 2px 8px rgba(255,107,157,0.08);
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(.36,.07,.19,.97), box-shadow 0.22s, border-color 0.22s;
+      animation: slideUp 0.6s ease both;
+      display: flex; align-items: center; gap: 16px;
+      position: relative; overflow: hidden;
+    }
+    .date-card:nth-child(1) { animation-delay: 0.1s; }
+    .date-card:nth-child(2) { animation-delay: 0.22s; }
+    .date-card:nth-child(3) { animation-delay: 0.34s; }
+
+    .date-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,107,157,0.07), rgba(199,125,255,0.07));
+      opacity: 0; transition: opacity 0.22s;
+      border-radius: 24px;
+    }
+    .date-card:hover::before { opacity: 1; }
+    .date-card:hover {
+      transform: translateY(-5px) scale(1.025);
+      box-shadow: 0 16px 48px rgba(199,125,255,0.22), 0 4px 16px rgba(255,107,157,0.15);
+      border-color: var(--pink);
+    }
+    .date-card.selected {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px rgba(199,125,255,0.25), 0 12px 40px rgba(199,125,255,0.2);
+      transform: scale(1.03);
+    }
+
+    .card-icon {
+      width: 58px; height: 58px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.9rem; flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      transition: transform 0.3s;
+    }
+    .date-card:hover .card-icon { transform: rotate(-8deg) scale(1.12); }
+    .icon-sea   { background: linear-gradient(135deg, #74ebd5, #9face6); }
+    .icon-movie { background: linear-gradient(135deg, #f7971e, #ffd200); }
+    .icon-park  { background: linear-gradient(135deg, #56ab2f, #a8e063); }
+
+    .card-info { flex: 1; }
+    .card-title {
+      font-size: 1.15rem; font-weight: 800; color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .card-time {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.82rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white; padding: 3px 12px; border-radius: 50px;
+    }
+    .card-desc {
+      font-size: 0.78rem; color: #8a6b9a; margin-top: 5px; font-weight: 600;
+    }
+
+    .card-check {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2.5px solid #ddd; flex-shrink: 0;
+      transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .date-card.selected .card-check {
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      border-color: transparent; color: white;
+    }
+
+    /* Buttons section */
+    .action-section {
+      margin-top: 24px;
+      animation: slideUp 0.6s 0.5s ease both;
+    }
+
+    .btn-row { display: flex; gap: 14px; }
+
+    .btn {
+      flex: 1; padding: 15px 10px; border: none; border-radius: 18px;
+      font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800;
+      cursor: pointer; transition: all 0.22s cubic-bezier(.36,.07,.19,.97);
+      position: relative; overflow: hidden;
+      letter-spacing: 0.3px;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0.18);
+      opacity: 0; transition: opacity 0.18s;
+    }
+    .btn:active::after { opacity: 1; }
+
+    .btn-yes {
+      background: linear-gradient(135deg, var(--pink) 0%, var(--purple) 100%);
+      color: white;
+      box-shadow: 0 6px 24px rgba(255,107,157,0.35);
+    }
+    .btn-yes:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 32px rgba(199,125,255,0.4);
+    }
+    .btn-no {
+      background: var(--card-bg);
+      color: #b09dbf; border: 2px solid rgba(176,157,191,0.3);
+      backdrop-filter: blur(8px);
+    }
+    .btn-no:hover {
+      transform: translateY(-3px);
+      background: #f5eef8; color: #8a6b9a;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(61,26,79,0.45); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      background: white; border-radius: 28px; padding: 36px 28px;
+      max-width: 360px; width: 100%; text-align: center;
+      box-shadow: 0 24px 64px rgba(61,26,79,0.25);
+      animation: popIn 0.4s cubic-bezier(.36,.07,.19,.97);
+      position: relative;
+    }
+    .modal-emoji { font-size: 3.5rem; margin-bottom: 10px; display: block;
+      animation: wiggle 1s ease infinite; }
+    .modal h2 {
+      font-family: 'Pacifico', cursive; font-size: 1.6rem;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin-bottom: 10px;
+    }
+    .modal p { color: #8a6b9a; font-size: 0.95rem; font-weight: 600; line-height: 1.5; }
+    .modal .selected-info {
+      background: linear-gradient(135deg, #fff0f8, #f3e8ff);
+      border-radius: 16px; padding: 14px; margin: 16px 0;
+      border: 2px solid rgba(199,125,255,0.2);
+      font-weight: 800; color: var(--dark); font-size: 1rem;
+    }
+    .modal .btn-close {
+      width: 100%; margin-top: 6px; padding: 14px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white; border: none; border-radius: 16px;
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: transform 0.2s;
+    }
+    .modal .btn-close:hover { transform: scale(1.04); }
+
+    /* No modal */
+    .no-modal { display: none; position: fixed; inset: 0; z-index: 100;
+      align-items: center; justify-content: center; padding: 20px;
+      background: rgba(61,26,79,0.45); backdrop-filter: blur(6px); }
+    .no-modal.active { display: flex; }
+    .no-box {
+      background: white; border-radius: 28px; padding: 36px 28px;
+      max-width: 340px; width: 100%; text-align: center;
+      box-shadow: 0 24px 64px rgba(61,26,79,0.25);
+      animation: popIn 0.4s cubic-bezier(.36,.07,.19,.97);
+    }
+    .no-box .emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .no-box h2 {
+      font-family: 'Pacifico', cursive; font-size: 1.4rem; color: var(--dark);
+      margin-bottom: 10px;
+    }
+    .no-box p { color: #a08ab0; font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
+    .no-box .btn-ok {
+      margin-top: 18px; width: 100%; padding: 13px;
+      background: linear-gradient(135deg, #ddd, #bbb);
+      color: white; border: none; border-radius: 16px;
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Sending overlay */
+    .sending-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(255,245,249,0.92); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+    }
+    .sending-overlay.active { display: flex; }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 5px solid rgba(199,125,255,0.2);
+      border-top-color: var(--purple);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    .sending-overlay p {
+      font-family: 'Pacifico', cursive; font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Animations */
+    @keyframes bounceIn {
+      0%   { transform: scale(0.7) translateY(-30px); opacity: 0; }
+      70%  { transform: scale(1.05) translateY(4px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(-8deg); }
+      50%     { transform: rotate(8deg); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Sparkle burst on yes click */
+    .sparkle { position: fixed; pointer-events: none; z-index: 300; font-size: 1.6rem;
+      animation: sparkleFly 1s ease forwards; }
+    @keyframes sparkleFly {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: white; padding: 14px 28px; border-radius: 50px;
+      font-weight: 800; font-size: 0.95rem; z-index: 400;
+      box-shadow: 0 8px 24px rgba(199,125,255,0.3);
+      transition: transform 0.4s cubic-bezier(.36,.07,.19,.97);
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 400px) {
+      .date-card { padding: 16px; }
+      .card-icon { width: 48px; height: 48px; font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Floating hearts -->
+<div class="hearts-bg" id="heartsBg"></div>
+
+<!-- Main container -->
+<div class="container">
+  <div class="header">
+    <div class="emoji-row">💕✨💕</div>
+    <h1>Plan Our Secret Trip?</h1>
+    <p>Choose where you'd like to go 🥺</p>
+  </div>
+
+  <div class="cards" id="cardsContainer">
+    <!-- Seaview -->
+    <div class="date-card" onclick="selectCard(this, 0)">
+      <div class="card-icon icon-sea">🌊</div>
+      <div class="card-info">
+        <div class="card-title">Seaview Trip 🌅</div>
+        <div class="card-time">🕑 2:00 PM – 7:00 PM</div>
+        <div class="card-desc">Waves, sunset & good vibes together 💙</div>
+      </div>
+      <div class="card-check">✓</div>
+    </div>
+
+    <!-- Movie -->
+    <div class="date-card" onclick="selectCard(this, 1)">
+      <div class="card-icon icon-movie">🎬</div>
+      <div class="card-info">
+        <div class="card-title">Movie Trip 🍿</div>
+        <div class="card-time">🕐 1:00 PM – 6:00 PM</div>
+        <div class="card-desc">Popcorn, dark room & you beside me 🎥</div>
+      </div>
+      <div class="card-check">✓</div>
+    </div>
+
+    <!-- Park -->
+    <div class="date-card" onclick="selectCard(this, 2)">
+      <div class="card-icon icon-park">🌳</div>
+      <div class="card-info">
+        <div class="card-title">Park Trip 🌸</div>
+        <div class="card-time">🕒 3:00 PM – 7:00 PM</div>
+        <div class="card-desc">Fresh air, green grass & your smile 🌺</div>
+      </div>
+      <div class="card-check">✓</div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="action-section">
+    <div class="btn-row">
+      <button class="btn btn-yes" onclick="handleYes()">💖 Yes, Let's Go!</button>
+      <button class="btn btn-no"  onclick="handleNo()">😔 Abhi Nahii...</button>
+    </div>
+  </div>
+</div>
+
+<!-- Yes modal -->
+<div class="modal-overlay" id="yesModal">
+  <div class="modal">
+    <span class="modal-emoji">🥰</span>
+    <h2>Yay! It's a Date Hahahah!</h2>
+    <div class="selected-info" id="modalInfo">—</div>
+    <p>Main bohot excited hun! 🌟<br/>Email bhi bhej diya hai! 💌</p>
+    <button class="btn-close" onclick="closeModal()">💕 Can't Wait!</button>
+  </div>
+</div>
+
+<!-- No modal -->
+<div class="no-modal" id="noModal">
+  <div class="no-box">
+    <span class="emoji">🥺</span>
+    <h2>Thak gaye kya?</h2>
+    <p>Koi baat nahi... jab mood ho tab batana 🫶<br/>Main yahan hun hamesha 💕</p>
+    <button class="btn-ok" onclick="closeNoModal()">Okay 😔</button>
+  </div>
+</div>
+
+<!-- Sending overlay -->
+<div class="sending-overlay" id="sendingOverlay">
+  <div class="spinner"></div>
+  <p>Sending love... 💌</p>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">💖 Email sent with love!</div>
+
+<script>
+  const options = [
+    { name: "Seaview Trip 🌊", time: "2:00 PM – 7:00 PM" },
+    { name: "Movie Trip 🎬",   time: "1:00 PM – 6:00 PM" },
+    { name: "Park Trip 🌳",    time: "3:00 PM – 7:00 PM" }
+  ];
+  let selected = null;
+
+  // Generate floating hearts
+  const bg = document.getElementById('heartsBg');
+  const emojis = ['💕','💖','✨','🌸','💗','⭐','💫','🌟'];
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'heart-float';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animationDuration = (8 + Math.random() * 10) + 's';
+    el.style.animationDelay  = (Math.random() * 12) + 's';
+    el.style.fontSize = (0.9 + Math.random() * 1.2) + 'rem';
+    bg.appendChild(el);
+  }
+
+  function selectCard(card, idx) {
+    document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selected = idx;
+  }
+
+  function spawnSparkles(x, y) {
+    const emojis = ['💖','✨','🌸','💫','⭐','💕'];
+    for (let i = 0; i < 10; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+      const angle = Math.random() * 2 * Math.PI;
+      const dist  = 80 + Math.random() * 120;
+      el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  async function handleYes() {
+    if (selected === null) {
+      showToast('💕 Pehle ek option choose karo!');
+      document.querySelectorAll('.date-card')[0].style.animation = 'wiggle 0.4s ease';
+      return;
+    }
+
+    const opt = options[selected];
+
+    // Sparkles
+    const btn = document.querySelector('.btn-yes');
+    const r   = btn.getBoundingClientRect();
+    spawnSparkles(r.left + r.width/2, r.top + r.height/2);
+
+    // Show sending
+    document.getElementById('sendingOverlay').classList.add('active');
+
+    // Send email via EmailJS (free tier)
+    try {
+      await sendEmail(opt);
+    } catch(e) { console.warn('Email error:', e); }
+
+    // Hide sending, show modal
+    setTimeout(() => {
+      document.getElementById('sendingOverlay').classList.remove('active');
+      document.getElementById('modalInfo').innerHTML =
+        `${opt.name}<br/><span style="font-size:0.85rem;color:#a08ab0">${opt.time}</span>`;
+      document.getElementById('yesModal').classList.add('active');
+    }, 1800);
+  }
+
+  async function sendEmail(opt) {
+    // Using EmailJS public API (free)
+    const serviceId  = 'service_default';
+    const templateId = 'template_default';
+    const publicKey  = 'service_kvvh2rg';
+
+    // Fallback: direct mailto link as data
+    const subject = encodeURIComponent(`💕 Date Selected: ${opt.name}`);
+    const body    = encodeURIComponent(
+      `Assalam o Alaikum!\n\nDate Plan: ${opt.name}\nTime: ${opt.time}\n\nYour date has been confirmed! 🥰\n\nWith love 💕`
+    );
+
+    // Try EmailJS if configured, else open mailto
+    if (publicKey !== 'service_kvvh2rg') {
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: serviceId, template_id: templateId, user_id: publicKey,
+          template_params: {
+            to_email: 'infosyedalimoiz99@gmail.com',
+            date_option: opt.name, date_time: opt.time
+          }
+        })
+      });
+      return res;
+    } else {
+      // Mailto fallback — opens mail client
+      window.open(
+        `mailto:infosyedalimoiz99@gmail.com?subject=${subject}&body=${body}`,
+        '_blank'
+      );
+    }
+  }
+
+  function handleNo() {
+    document.getElementById('noModal').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('yesModal').classList.remove('active');
+    showToast('💌 Email bhej diya with love!');
+  }
+
+  function closeNoModal() {
+    document.getElementById('noModal').classList.remove('active');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Close modals on overlay click
+  document.getElementById('yesModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById('noModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNoModal();
+  });
+</script>
+</body>
+</html>
