@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>💕 Pick Our Secret Trip</title>
+  <title>💕 Pick Our Date</title>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -478,38 +478,21 @@
   }
 
   async function sendEmail(opt) {
-    // Using EmailJS public API (free)
-    const serviceId  = 'service_default';
-    const templateId = 'template_default';
-    const publicKey  = 'service_kvvh2rg';
-
-    // Fallback: direct mailto link as data
-    const subject = encodeURIComponent(`💕 Date Selected: ${opt.name}`);
-    const body    = encodeURIComponent(
-      `Assalam o Alaikum!\n\nDate Plan: ${opt.name}\nTime: ${opt.time}\n\nYour date has been confirmed! 🥰\n\nWith love 💕`
-    );
-
-    // Try EmailJS if configured, else open mailto
-    if (publicKey !== 'service_kvvh2rg') {
-      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: serviceId, template_id: templateId, user_id: publicKey,
-          template_params: {
-            to_email: 'infosyedalimoiz99@gmail.com',
-            date_option: opt.name, date_time: opt.time
-          }
-        })
-      });
-      return res;
-    } else {
-      // Mailto fallback — opens mail client
-      window.open(
-        `mailto:infosyedalimoiz99@gmail.com?subject=${subject}&body=${body}`,
-        '_blank'
-      );
-    }
+    // Using Web3Forms — completely free, no signup needed, sends directly
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: 'fd175035-2ff2-4955-9aec-a982834fdf66',
+        to: 'infosyedalimoiz99@gmail.com',
+        subject: `💕 Date Selected: ${opt.name}`,
+        message: `Assalam o Alaikum! 🌸\n\n✅ Date Confirm Ho Gayi!\n\n📍 Option: ${opt.name}\n⏰ Time: ${opt.time}\n\nYour date is confirmed! 🥰\n\nWith love 💕`,
+        from_name: 'Date Planner 💕',
+        botcheck: ''
+      })
+    });
+    const data = await res.json();
+    return data;
   }
 
   function handleNo() {
